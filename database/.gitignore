@@ -1,1 +1,13 @@
-*.sqlite*
+*.mysql*
+/vendor
+.env
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/.idea
+/.vscode
+/npm-debug.log
+yarn-error.log
+yarn-debug.log
+.DS_Store
