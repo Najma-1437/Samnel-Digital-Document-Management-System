@@ -1,56 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IAP Document System</title>
-
-    <!-- Bootstrap CSS (Optional: you can switch to Tailwind if required) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ config('app.name', 'Document Manager') }}</title>
+    @vite('resources/css/app.css')
 </head>
+<body class="bg-gray-100 font-sans antialiased">
 
-<body class="bg-light">
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+            <div class="flex items-center space-x-4">
+                <!-- Logo -->
+                <img src="{{ asset('images/logo.png') }}" alt="Samnel Insurance Brokers" class="h-10 w-auto">
+                <h1 class="text-xl font-bold text-gray-800">Samnel Insurance Brokers LTD</h1>
+            </div>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/dashboard">IAP System</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+            <nav class="space-x-4">
+                <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600">Dashboard</a>
+                <a href="{{ route('documents.index') }}" class="text-gray-700 hover:text-blue-600">Documents</a>
+                <a href="{{ route('profile.edit') }}" class="text-gray-700 hover:text-blue-600">Profile</a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="text-red-600 hover:underline">Logout</button>
+                </form>
+            </nav>
+        </div>
+    </header>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-
-        <li class="nav-item">
-          <a class="nav-link" href="/documents">Documents</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="/documents/approvals">Approvals</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="/documents/versions">Version Control</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="/documents/collab">Collaboration</a>
-        </li>
-
-      </ul>
-
-      <form method="POST" action="/logout">
-          @csrf
-          <button class="btn btn-danger btn-sm">Logout</button>
-      </form>
+    <!-- Page Header -->
+    <div class="bg-gray-50 shadow-sm">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            @yield('header')
+        </div>
     </div>
-  </div>
-</nav>
 
-<div class="container py-4">
-    @yield('content')
-</div>
+    <!-- Page Content -->
+    <main class="py-6">
+        @yield('content')
+    </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+>>>>>>> 66eab349641f9bb74831e3a3f22a4e37987aaae5
