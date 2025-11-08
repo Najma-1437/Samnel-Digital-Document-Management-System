@@ -2,24 +2,124 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
+    public function run()
     {
-        // User::factory(10)->create();
+        // 1. Insert users
+        $userIds = [];
+        $usersData = [
+            ['username' => 'admin_user', 'email' => 'admin@example.com', 'role' => 'admin'],
+            ['username' => 'staff1', 'email' => 'staff1@example.com', 'role' => 'staff'],
+            ['username' => 'staff2', 'email' => 'staff2@example.com', 'role' => 'staff'],
+            ['username' => 'staff3', 'email' => 'staff3@example.com', 'role' => 'staff'],
+            ['username' => 'guest1', 'email' => 'guest1@example.com', 'role' => 'guest'],
+        ];
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ($usersData as $userData) {
+            $id = DB::table('users')->insertGetId([
+                'username' => $userData['username'],
+                'email' => $userData['email'],
+                'password' => Hash::make('password'),
+                'role' => $userData['role'],
+                'last_login' => now(),
+                'is_active' => true,
+                'created_at' => now(),
+            ]);
+            $userIds[] = $id;
+        }
+
+        // 2. Insert documents
+        $docIds = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $id = DB::table('documents')->insertGetId([
+                'title' => "Document $i",
+                'description' => "Description for document $i",
+                'file_path' => "documents/doc_$i.pdf",
+                'file_type' => 'pdf',
+                'status' => 'approved',
+                'created_by' => $userIds[array_rand($userIds)],
+                'updated_by' => $userIds[array_rand($userIds)],
+                'parent_doc_id' => null,
+                'created_at' => now(),
+            ]);
+            $docIds[] = $id;
+        }
+
+        // 3. Insert approvals
+        for ($i = 1; $i <= 15; $i++) {
+            DB::table('approvals_workflows')->insert([
+                'doc_id' => $docIds[array_rand($docIds)],
+                'approver_id' => $userIds[array_rand($userIds)],
+                'status' => 'pending',
+                'comments' => null,
+                'requested_at' => now(),
+                'responded_at' => null,
+                'sequence_order' => $i,
+            ]);
+        }
+        // Access controls 
+          $adminId = $userIds[0]; // first user is admin
+        for ($i = 1; $i <= 20; $i++) {
+            DB::table('access_controls')->insert([
+                'doc_id' => $docIds[array_rand($docIds)],
+                'user_id' => $userIds[array_rand($userIds)],
+                'permission_level' => array_rand(['view' => 1, 'edit' => 1, 'approve' => 1, 'admin' => 1]),
+                'granted_by' => $adminId,
+                'granted_at' => now()->subDays(rand(0, 15)),
+                'expires_at' => rand(0, 1) ? now()->addDays(rand(30, 180)) : null,
+            ]);
+        }
+        // Document tags 
+         $tags = ['Claim', 'Policy', 'Invoice', 'Client A', 'Urgent', 'Archived', 'Draft'];
+        for ($i = 1; $i <= 25; $i++) {
+            DB::table('document_tags')->insert([
+                'doc_id' => $docIds[array_rand($docIds)],
+                'tag_name' => $tags[array_rand($tags)],
+                'created_at' => now()->subDays(rand(0, 20)),
+            ]);
+        }
+        // Document shares 
+         for ($i = 1; $i <= 8; $i++) {
+            DB::table('document_shares')->insert([
+                'doc_id' => $docIds[array_rand($docIds)],
+                'shared_with_email' => 'insurer' . $i . '@broker.com',
+                'expires_at' => now()->addDays(30),
+                'created_by' => $userIds[array_rand($userIds)],
+                'created_at' => now()->subDays(rand(0, 10)),
+                'access_count' => rand(0, 10),
+            ]);
+        }
+        // collaborations 
+         for ($i = 1; $i <= 30; $i++) {
+            DB::table('collaborations')->insert([
+                'doc_id' => $docIds[array_rand($docIds)],
+                'user_id' => $userIds[array_rand($userIds)],
+                'comment_text' => "Comment $i: " . fake()->sentence(),
+                'timestamp' => now()->subDays(rand(0, 25)),
+            ]);
+        }
+        // Analytics Reports 
+        $eventTypes = ['document_upload', 'approval_granted', 'login', 'access_denied', 'document_viewed'];
+        for ($i = 1; $i <= 50; $i++) {
+            DB::table('analytics_reports')->insert([
+                'event_type' => $eventTypes[array_rand($eventTypes)],
+                'user_id' => $userIds[array_rand($userIds)],
+                'doc_id' => rand(0, 1) ? $docIds[array_rand($docIds)] : null,
+                'event_details' => json_encode([
+                    'ip' => fake()->ipv4(),
+                    'user_agent' => 'Seeder/1.0',
+                    'note' => 'Generated by DatabaseSeeder'
+                ]),
+                'event_timestamp' => now()->subDays(rand(0, 30)),
+            ]);
+        }
+
+
+        
     }
 }
