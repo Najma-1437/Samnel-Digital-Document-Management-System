@@ -1,4 +1,4 @@
-333333<?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -21,8 +21,11 @@ return new class extends Migration
         $table->unsignedBigInteger('created_by')->nullable();
         $table->unsignedBigInteger('updated_by')->nullable();
         $table->unsignedBigInteger('parent_doc_id')->nullable();
+
         $table->timestamps();
 
+
+       // foreign key constraints
         $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
         $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         $table->foreign('parent_doc_id')->references('id')->on('documents')->onDelete('cascade');

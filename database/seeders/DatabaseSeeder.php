@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($usersData as $userData) {
             $id = DB::table('users')->insertGetId([
+                'name' => 'Admin User',
                 'username' => $userData['username'],
                 'email' => $userData['email'],
                 'password' => Hash::make('password'),
