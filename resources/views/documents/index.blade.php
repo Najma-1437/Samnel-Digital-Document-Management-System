@@ -1,9 +1,8 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Documents') }}
-        </h2>
-    </x-slot>
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        Documents
+    </h2>
+@endsection
 
     <div class="py-12 bg-gradient-to-br from-indigo-50 via-blue-100 to-indigo-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -74,10 +73,11 @@
                     </table>
                 </div>
 
-                <div class="mt-4">
-                    {{ $documents->links() }}
-                </div>
+            <div class="mt-4">
+                {{ $documents->links() }}
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+>>>>>>> 66eab349641f9bb74831e3a3f22a4e37987aaae5
+@endsection
