@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
@@ -31,30 +30,24 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-
-            'username' => ['required', 'string', 'max:100', 'unique:users,username'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-
-        // Create the user
+        
+        // Auto-assign role: first user = admin, others = staff
+        $role = User::count() === 0 ? : 'staff';
+        
         $user = User::create([
-            'name' => $request->username,
-            'username' => $request->username,
+            'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make(Str::random(16)),
+            'password' => Hash::make($request->password),
         ]);
-       
 
-        // Trigger the Registered event (for email verification, etc.)
         event(new Registered($user));
 
-
-        // Log the user in
         Auth::login($user);
 
-
-        // Redirect to the dashboard
-       return redirect()->route('dashboard')->with('success', 'User registered successfully!');
+        return redirect(route('dashboard', absolute: false));
     }
 }

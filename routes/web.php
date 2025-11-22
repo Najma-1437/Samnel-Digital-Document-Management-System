@@ -1,31 +1,31 @@
 <?php
+
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Dashboard
+// Dashboard (protected)
 Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Authenticated user routes
 Route::middleware(['auth'])->group(function () {
-    // Profile management
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Documents
+    // 🔥 Documents — MUST be here
     Route::resource('documents', DocumentController::class);
 
-    // Logout
-    Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+    // Logout (Breeze handles this, but you can keep or remove)
+    // Route::post('/logout', ...); ← Breeze already defines this
 });
 
-// Document view/download routes
+// Public document actions (if needed)
 Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
 Route::get('documents/{document}/view', [DocumentController::class, 'view'])->name('documents.view');
 
-// Include auth routes
+// Load Breeze auth routes
 require __DIR__.'/auth.php';
