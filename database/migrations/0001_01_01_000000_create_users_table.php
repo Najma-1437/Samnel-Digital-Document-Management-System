@@ -19,6 +19,7 @@ return new class extends Migration
         $table->string('password');
         $table->enum('role', ['admin','staff','guest'])->default('guest');
         $table->timestamp('created_at')->useCurrent();
+        $table->timestamp('updated_at')->nullable()->useCurrentUpdate();
         $table->timestamp('last_login')->nullable();
         $table->boolean('is_active')->default(true);
         });

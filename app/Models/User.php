@@ -22,7 +22,8 @@ class User extends Authenticatable
     public $timestamps = true;
     protected $fillable = [
         
-        
+        'name',
+        'full_name',
         'username',
         'email',
         'password',
@@ -51,4 +52,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     
+    public function getAuthIdentifierName()
+    {
+        return 'user_id';
+    }
 }
