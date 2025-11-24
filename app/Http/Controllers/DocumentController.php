@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class DocumentController extends Controller
 {
     /**
-     * Display a listing of the documents.
+     * Display a listing of the documents belonging to the logged-in user.
      */
     public function index()
     {
@@ -40,10 +40,10 @@ class DocumentController extends Controller
             'file'        => 'required|file|mimes:pdf,doc,docx,xlsx,ppt,pptx,txt|max:5120',
         ]);
 
-        // Store file
+        // Store the uploaded file in 'public/documents'
         $path = $request->file('file')->store('documents', 'public');
 
-        // Save DB record
+        // Save record in database
         Document::create([
             'title'       => $validated['title'],
             'description' => $validated['description'] ?? '',
@@ -56,56 +56,60 @@ class DocumentController extends Controller
     }
 
     /**
-     * Display a single document details.
+     * Display a single document.
      */
     public function show(Document $document)
     {
-        if ($document->created_by !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorizeDocument($document);
 
         return view('documents.show', compact('document'));
     }
 
     /**
-     * View document in browser.
+     * View the document in the browser.
      */
     public function view(Document $document)
     {
-        if ($document->created_by !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorizeDocument($document);
 
         return response()->file(storage_path('app/public/' . $document->file_path));
     }
 
     /**
-     * Download document.
+     * Download the document.
      */
     public function download(Document $document)
     {
-        if ($document->created_by !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorizeDocument($document);
 
         return response()->download(storage_path('app/public/' . $document->file_path));
     }
 
     /**
-     * Delete a document.
+     * Delete the document.
      */
     public function destroy(Document $document)
     {
-        if ($document->created_by !== Auth::id()) {
-            return redirect()->route('documents.index')->with('error', 'You are not allowed to delete this document.');
-        }
+        $this->authorizeDocument($document);
 
         // Delete file
         Storage::disk('public')->delete($document->file_path);
 
-        // Delete DB entry
+        // Delete DB record
         $document->delete();
 
-        return redirect()->route('documents.index')->with('success', 'Document deleted successfully!');
+        return redirect()->route('documents.index')
+                         ->with('success', 'Document deleted successfully!');
+    }
+
+    /**
+     * Helper: check if the logged-in user owns the document.
+     */
+    private function authorizeDocument(Document $document)
+    {
+        if ($document->created_by !== Auth::id()) {
+            abort(403, 'You are not authorized to access this document.');
+        }
     }
 }
+

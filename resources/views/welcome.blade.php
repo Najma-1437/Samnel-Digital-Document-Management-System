@@ -57,11 +57,12 @@
                     </span>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-gray-700 hover:text-blue-600 font-medium transition">Features</a>
-                    <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 font-medium transition">How It Works</a>
-                    <a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium transition">Contact</a>
-                    <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700 font-medium transition">Sign In</a>
-                </div>
+    <a href="#features" class="text-gray-700 hover:text-blue-600 font-medium transition">Features</a>
+    <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 font-medium transition">How It Works</a>
+    <a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium transition">Contact</a>
+    <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700 font-medium transition">Sign In</a>
+    <a href="{{ route('login') }}" class="text-red-600 hover:text-red-700 font-medium transition">Admin Login</a>
+</div>
             </div>
         </div>
     </nav>

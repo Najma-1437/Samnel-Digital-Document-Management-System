@@ -10,7 +10,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Auth routes
+// Auth routes (Laravel Breeze / Jetstream)
 require __DIR__.'/auth.php';
 
 // Authenticated routes
