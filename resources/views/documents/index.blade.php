@@ -1,8 +1,9 @@
-@section('header')
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        Documents
-    </h2>
-@endsection
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Documents') }}
+        </h2>
+    </x-slot>
 
     <div class="py-12 bg-gradient-to-br from-indigo-50 via-blue-100 to-indigo-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -55,7 +56,7 @@
                                            class="text-green-600 hover:text-green-800 font-medium">
                                             Download
                                         </a>
-                                        @if ($doc->created_by === auth()->id() || auth()->user()->role === 'admin' )
+                                        @if ($doc->created_by === auth()->id())
                                             <form action="{{ route('documents.destroy', $doc) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this document?');">
                                                 @csrf
                                                 @method('DELETE')
@@ -79,4 +80,4 @@
             </div>
         </div>
     </div>
-@endsection
+</x-app-layout>
