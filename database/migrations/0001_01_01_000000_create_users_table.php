@@ -6,22 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-             $table->id(); // ← this creates `id` (BIGINT UNSIGNED PRIMARY KEY)
-        $table->string('username', 100)->unique();
-        $table->string('name', 150);
-        $table->string('email', 150)->unique();
-        $table->string('password');
-        $table->enum('role', ['admin','staff','guest'])->default('guest');
-        $table->timestamp('created_at')->useCurrent();
-        $table->timestamp('updated_at')->nullable()->useCurrentUpdate();
-        $table->timestamp('last_login')->nullable();
-        $table->boolean('is_active')->default(true);
+            $table->id();
+            $table->string('name');
+            $table->string('username')->nullable();
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('role')->default('user'); // user, admin
+            $table->rememberToken(); // This already adds remember_token
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -40,9 +36,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

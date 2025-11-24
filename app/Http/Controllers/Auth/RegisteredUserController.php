@@ -35,19 +35,22 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
         
-        // Auto-assign role: first user = admin, others = staff
-        $role = User::count() === 0 ? : 'staff';
+        // Auto-assign role: first user = admin, others = user
+        $role = User::count() === 0 ? 'admin' : 'user';
         
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $role,
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // DON'T auto-login the user
+        // Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to login with success message
+        return redirect()->route('login')->with('status', 'Registration successful! Please login to continue.');
     }
 }

@@ -14,7 +14,10 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        $documents = Document::latest()->paginate(10);
+        $documents = Document::where('created_by', Auth::id())
+                             ->latest()
+                             ->paginate(10);
+
         return view('documents.index', compact('documents'));
     }
 
@@ -32,60 +35,77 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx,xlsx,ppt,pptx,txt|max:2048',
+            'file'        => 'required|file|mimes:pdf,doc,docx,xlsx,ppt,pptx,txt|max:5120',
         ]);
 
+        // Store file
         $path = $request->file('file')->store('documents', 'public');
 
+        // Save DB record
         Document::create([
-            'title' => $validated['title'],
+            'title'       => $validated['title'],
             'description' => $validated['description'] ?? '',
-            'file_path' => $path,
-            'created_by' => Auth::id(),
+            'file_path'   => $path,
+            'created_by'  => Auth::id(),
         ]);
 
-        return redirect()->route('documents.index')->with('success', 'Document uploaded successfully!');
+        return redirect()->route('documents.index')
+                         ->with('success', 'Document uploaded successfully!');
     }
 
     /**
-     * Display the specified document.
+     * Display a single document details.
      */
     public function show(Document $document)
     {
+        if ($document->created_by !== Auth::id()) {
+            abort(403);
+        }
+
         return view('documents.show', compact('document'));
     }
 
     /**
-     * Remove the specified document from storage.
-     */
-    public function destroy(Document $document)
-    {
-        // Only allow the uploader to delete
-        if ($document->created_by !== Auth::id()) {
-            return redirect()->route('documents.index')->with('error', 'You are not allowed to delete this document.');
-        }
-
-        Storage::disk('public')->delete($document->file_path);
-        $document->delete();
-
-        return redirect()->route('documents.index')->with('success', 'Document deleted successfully!');
-    }
-
-    /**
-     * Open the document in the browser
+     * View document in browser.
      */
     public function view(Document $document)
     {
+        if ($document->created_by !== Auth::id()) {
+            abort(403);
+        }
+
         return response()->file(storage_path('app/public/' . $document->file_path));
     }
 
     /**
-     * Download the document
+     * Download document.
      */
     public function download(Document $document)
     {
+        if ($document->created_by !== Auth::id()) {
+            abort(403);
+        }
+
         return response()->download(storage_path('app/public/' . $document->file_path));
+    }
+
+    /**
+     * Delete a document.
+     */
+    public function destroy(Document $document)
+    {
+        if ($document->created_by !== Auth::id()) {
+            return redirect()->route('documents.index')->with('error', 'You are not allowed to delete this document.');
+        }
+
+        // Delete file
+        Storage::disk('public')->delete($document->file_path);
+
+        // Delete DB entry
+        $document->delete();
+
+        return redirect()->route('documents.index')->with('success', 'Document deleted successfully!');
     }
 }
